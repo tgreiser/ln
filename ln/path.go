@@ -192,16 +192,17 @@ func (p *Paths) Optimize() {
 		// try to find the endpoint of each Path in successive Paths (not previous)
 		f1, f2 := (*p)[i1:].find((*p)[i1-1][1])
 
+		// if a match was found
 		if f1 != -1 {
-			// if found, swap the paths
 			tmp := (*p)[f1+i1]
 
 			// reverse if necessary
 			if f2 == 1 {
 				tmp.Reverse()
 			}
-			(*p)[f1+i1] = (*p)[i1-1]
-			(*p)[i1-1] = tmp
+			// swap the paths
+			(*p)[f1+i1] = (*p)[i1]
+			(*p)[i1] = tmp
 		}
 	}
 }
