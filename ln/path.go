@@ -98,6 +98,13 @@ func (p Path) Print() {
 	fmt.Println()
 }
 
+// Reverse the order of the vectors in the Path
+func (p *Path) Reverse() {
+	v := (*p)[0]
+	(*p)[0] = (*p)[1]
+	(*p)[1] = v
+}
+
 func (p Path) String() string {
 	var parts []string
 	for _, v := range p {
@@ -160,6 +167,42 @@ func (p Paths) Simplify(threshold float64) Paths {
 func (p Paths) Print() {
 	for _, path := range p {
 		path.Print()
+	}
+}
+
+func (p Paths) find(vec Vector) (int, int) {
+	ctr := 0
+	for _, mp := range p {
+		if vec.Distance(mp[0]) == 0.0 {
+			return ctr, 0
+		} else if vec.Distance(mp[1]) == 0.0 {
+			return ctr, 1
+		}
+		ctr++
+	}
+	return -1, -1
+}
+
+// Optimize will reorder the Vectors and Paths to produce continuous lines where possible.
+// Useful for laser applications. Future iterations may use nearest neighbor but currently
+// only exact matches are considered.
+func (p *Paths) Optimize() {
+	l := len(*p)
+	for i1 := 1; i1 < l; i1++ {
+		// try to find the endpoint of each Path in successive Paths (not previous)
+		f1, f2 := (*p)[i1:].find((*p)[i1-1][1])
+
+		if f1 != -1 {
+			// if found, swap the paths
+			tmp := (*p)[f1+i1]
+
+			// reverse if necessary
+			if f2 == 1 {
+				tmp.Reverse()
+			}
+			(*p)[f1+i1] = (*p)[i1-1]
+			(*p)[i1-1] = tmp
+		}
 	}
 }
 
